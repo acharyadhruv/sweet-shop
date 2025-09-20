@@ -57,6 +57,42 @@ test("should return 401 if password does not match", async () => {
   expect(res.status).toHaveBeenCalledWith(401);
   expect(res.json).toHaveBeenCalledWith({ error: "Invalid credentials" });
 });
+test("should return token and role on successful login", async () => {
+  req.body = { email: "john@example.com", password: "pass123" };
+
+  const mockUser = {
+    _id: "123",
+    email: "john@example.com",
+    password: "hashed_password",
+    role: "customer",
+  };
+
+  // Mock user exists
+  User.findOne.mockResolvedValue(mockUser);
+
+  // Mock password match
+  const bcrypt = require("bcryptjs");
+  bcrypt.compare.mockResolvedValue(true);
+
+  // Mock JWT sign
+  const jwt = require("jsonwebtoken");
+  jwt.sign.mockReturnValue("mocked_token");
+
+  await login(req, res);
+
+  expect(jwt.sign).toHaveBeenCalledWith(
+    { id: mockUser._id, role: mockUser.role },
+    "testsecret",
+    { expiresIn: "1d" }
+  );
+
+  expect(res.status).toHaveBeenCalledWith(200);
+  expect(res.json).toHaveBeenCalledWith({
+    message: "Login successful",
+    token: "mocked_token",
+    role: "customer",
+  });
+});
 
 
 });
