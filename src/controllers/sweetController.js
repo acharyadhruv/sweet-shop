@@ -62,5 +62,63 @@ const searchSweets = async (req, res) => {
   }
 };
 
+// Update sweet (Admin only)
+const updateSweet = async (req, res) => {
+  try {
+    // Check valid ObjectId
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(404).json({ error: "Not found" });
+    }
 
-module.exports = { addSweet , getSweets , searchSweets};
+    // Validate body with Zod (partial schema)
+    const parsed = sweetZodSchema.partial().parse(req.body);
+
+    // Update in DB
+    const sweet = await Sweet.findByIdAndUpdate(
+      req.params.id,
+      parsed,
+      { new: true, runValidators: true }
+    );
+
+    // If no doc found
+    if (!sweet) {
+      return res.status(404).json({ error: "Not found" });
+    }
+
+    // Success
+    res.json(sweet);
+  } catch (err) {
+    // ✅ Handle Zod OR Mongoose validation errors
+    if (err.errors) {
+      let messages;
+      if (Array.isArray(err.errors)) {
+        // Zod error array
+        messages = err.errors.map(e => e.message);
+      } else {
+        // Mongoose error object
+        messages = Object.values(err.errors).map(e => e.message);
+      }
+      return res.status(400).json({ error: messages.join(", ") });
+    }
+
+    // ✅ Mongoose ValidationError (safety net)
+    if (err.name === "ValidationError") {
+      return res.status(400).json({
+        error: Object.values(err.errors).map(e => e.message).join(", ")
+      });
+    }
+
+    // ✅ Invalid ObjectId inside find/update
+    if (err.name === "CastError") {
+      return res.status(404).json({ error: "Not found" });
+    }
+
+    // ✅ Unknown error
+    res.status(400).json({
+      error: err.message || "Invalid request"
+    });
+  }
+};
+
+
+module.exports = { addSweet , getSweets , searchSweets, updateSweet};
