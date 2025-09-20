@@ -23,10 +23,8 @@ const addSweet = async (req, res) => {
   }
 };
 
-module.exports = { addSweet };
-// src/controllers/sweetController.js
-const { Sweet } = require("../models/Sweet");
 
+// src/controllers/sweetController.js
 const getSweets = async (req, res) => {
   try {
     const sweets = await Sweet.find();
@@ -37,4 +35,4 @@ const getSweets = async (req, res) => {
 };
 
 
-module.exports = { getSweets };
+module.exports = { addSweet , getSweets };
