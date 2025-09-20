@@ -30,4 +30,9 @@ const register = async (req, res) => {
       .json({ error: err.errors ? err.errors.map((e) => e.message) : err.message });
   }
 };
-module.exports = { register };
+const login = async (req, res) => {
+  return res.status(500).json({ error: "Email and password are required" });
+};
+
+
+module.exports = { register , login };
