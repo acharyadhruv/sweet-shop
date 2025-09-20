@@ -33,6 +33,34 @@ const getSweets = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+const searchSweets = async (req, res) => {
+  try {
+    const { name, category, minPrice, maxPrice } = req.query;
+    const query = {};
+
+    if (name) {
+      query.name = { $regex: name, $options: "i" };
+    }
+    if (category) {
+      query.category = category;
+    }
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice && !isNaN(parseFloat(minPrice))) {
+        query.price.$gte = parseFloat(minPrice);
+      }
+      if (maxPrice && !isNaN(parseFloat(maxPrice))) {
+        query.price.$lte = parseFloat(maxPrice);
+      }
+      if (Object.keys(query.price).length === 0) delete query.price;
+    }
+
+    const sweets = await Sweet.find(query);
+    res.json(sweets);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
 
 
-module.exports = { addSweet , getSweets };
+module.exports = { addSweet , getSweets , searchSweets};
