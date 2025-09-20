@@ -28,8 +28,13 @@ module.exports = { addSweet };
 const { Sweet } = require("../models/Sweet");
 
 const getSweets = async (req, res) => {
-  const sweets = await Sweet.find();
-  res.json(sweets);
+  try {
+    const sweets = await Sweet.find();
+    res.json(sweets);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
 };
+
 
 module.exports = { getSweets };
