@@ -27,4 +27,12 @@ describe("login controller - missing fields", () => {
       error: "Email and password are required",
     });
   });
+  test("should return 401 if user does not exist", async () => {
+  User.findOne.mockResolvedValue(null);
+  await login(req, res);
+
+  expect(User.findOne).toHaveBeenCalledWith({ email: req.body.email });
+  expect(res.status).toHaveBeenCalledWith(401);
+  expect(res.json).toHaveBeenCalledWith({ error: "Invalid credentials" });
+});
 });
