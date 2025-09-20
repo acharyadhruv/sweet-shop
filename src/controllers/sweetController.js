@@ -171,6 +171,33 @@ const purchaseSweet = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+// Restock sweet (Admin only)
+const restockSweet = async (req, res) => {
+  try {
+    const { quantity } = req.body;
 
+    if (!quantity || quantity <= 0) {
+      return res.status(400).json({ error: "Invalid quantity" });
+    }
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(404).json({ error: "Not found" });
+    }
 
-module.exports = { addSweet , getSweets , searchSweets, updateSweet , deleteSweet , purchaseSweet };
+    const sweet = await Sweet.findById(req.params.id);
+    if (!sweet) {
+      return res.status(404).json({ error: "Not found" });
+    }
+
+    sweet.quantity += quantity;
+    await sweet.save();
+
+    res.json({ message: "Restocked", sweet });
+  } catch (err) {
+    if (err.name === "CastError") {
+      return res.status(404).json({ error: "Not found" });
+    }
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+module.exports = { addSweet , getSweets , searchSweets, updateSweet , deleteSweet , purchaseSweet , restockSweet};
