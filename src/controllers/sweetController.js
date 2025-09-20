@@ -140,6 +140,37 @@ const deleteSweet = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+// Purchase sweet
+const purchaseSweet = async (req, res) => {
+  try {
+    const { quantity } = req.body;
+
+    if (!quantity || quantity <= 0) {
+      return res.status(400).json({ error: "Invalid quantity" });
+    }
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(404).json({ error: "Not found" });
+    }
+
+    const sweet = await Sweet.findById(req.params.id);
+    if (!sweet) {
+      return res.status(404).json({ error: "Not found" });
+    }
+    if (sweet.quantity < quantity) {
+      return res.status(400).json({ error: "Not enough stock" });
+    }
+
+    sweet.quantity -= quantity;
+    await sweet.save();
+
+    res.json({ message: "Purchased", sweet });
+  } catch (err) {
+    if (err.name === "CastError") {
+      return res.status(404).json({ error: "Not found" });
+    }
+    res.status(500).json({ error: "Server error" });
+  }
+};
 
 
-module.exports = { addSweet , getSweets , searchSweets, updateSweet , deleteSweet};
+module.exports = { addSweet , getSweets , searchSweets, updateSweet , deleteSweet , purchaseSweet };
