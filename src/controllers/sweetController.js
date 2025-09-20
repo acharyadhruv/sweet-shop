@@ -22,3 +22,14 @@ const addSweet = async (req, res) => {
     });
   }
 };
+
+module.exports = { addSweet };
+// src/controllers/sweetController.js
+const { Sweet } = require("../models/Sweet");
+
+const getSweets = async (req, res) => {
+  const sweets = await Sweet.find();
+  res.json(sweets);
+};
+
+module.exports = { getSweets };
