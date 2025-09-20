@@ -31,22 +31,27 @@ const register = async (req, res) => {
   }
 };
 const login = async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(500).json({ error: "Email and password are required" });
+    if (!email || !password) {
+      return res.status(500).json({ error: "Email and password are required" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(401).json({ error: "Invalid credentials" });
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) return res.status(401).json({ error: "Invalid credentials" });
+
+    // Generate JWT
+    const secret = process.env.JWT_SECRET || "testsecret";
+    const token = jwt.sign({ id: user._id, role: user.role }, secret, { expiresIn: "1d" });
+
+    return res.status(200).json({ message: "Login successful", token, role: user.role });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
-
-  const user = await User.findOne({ email });
-  if (!user) return res.status(401).json({ error: "Invalid credentials" });
-
-  // Password check
-  const match = await bcrypt.compare(password, user.password);
-  if (!match) return res.status(401).json({ error: "Invalid credentials" });
-
-  // Placeholder for next steps
-  return res.status(200).json({ message: "Password matched" });
 };
-
 
 module.exports = { register , login };
