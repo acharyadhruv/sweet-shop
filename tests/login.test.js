@@ -93,6 +93,17 @@ test("should return token and role on successful login", async () => {
     role: "customer",
   });
 });
+test("should return 500 on unexpected error", async () => {
+  req.body = { email: "john@example.com", password: "pass123" };
+
+  // Mock User.findOne to throw error → simulate DB crash
+  User.findOne.mockRejectedValue(new Error("DB crashed"));
+
+  await login(req, res);
+
+  expect(res.status).toHaveBeenCalledWith(500);
+  expect(res.json).toHaveBeenCalledWith({ error: "DB crashed" });
+});
 
 
 });
