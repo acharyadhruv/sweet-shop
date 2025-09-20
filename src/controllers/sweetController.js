@@ -116,9 +116,30 @@ const updateSweet = async (req, res) => {
     // ✅ Unknown error
     res.status(400).json({
       error: err.message || "Invalid request"
+
     });
+  }
+};
+// Delete sweet (Admin only)
+const deleteSweet = async (req, res) => {
+  try {
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(404).json({ error: "Not found" });
+    }
+
+    const sweet = await Sweet.findByIdAndDelete(req.params.id);
+    if (!sweet) {
+      return res.status(404).json({ error: "Not found" });
+    }
+
+    res.json({ message: "Deleted successfully" });
+  } catch (err) {
+    if (err.name === "CastError") {
+      return res.status(404).json({ error: "Not found" });
+    }
+    res.status(500).json({ error: "Server error" });
   }
 };
 
 
-module.exports = { addSweet , getSweets , searchSweets, updateSweet};
+module.exports = { addSweet , getSweets , searchSweets, updateSweet , deleteSweet};
