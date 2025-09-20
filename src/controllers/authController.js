@@ -34,13 +34,16 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Missing fields
     if (!email || !password) {
       return res.status(500).json({ error: "Email and password are required" });
     }
 
+    // User existence
     const user = await User.findOne({ email });
     if (!user) return res.status(401).json({ error: "Invalid credentials" });
 
+    // Password verification
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ error: "Invalid credentials" });
 
@@ -50,8 +53,8 @@ const login = async (req, res) => {
 
     return res.status(200).json({ message: "Login successful", token, role: user.role });
   } catch (err) {
+    // Catch unexpected errors
     return res.status(500).json({ error: err.message });
   }
 };
-
 module.exports = { register , login };
