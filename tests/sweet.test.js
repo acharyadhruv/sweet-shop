@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { MongoMemoryServer } = require("mongodb-memory-server");
-const { sweetZodSchema } = require("../models/Sweet"); // Will fail now
+const { sweetZodSchema } = require("../src/models/Sweet"); // Will fail now
 
 let mongoServer;
 

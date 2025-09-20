@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-  "start": "node src/server.js",
-  "dev": "nodemon src/server.js",
-  "test": "jest"
-},
-
+    "start": "node src/server.js",
+    "seed": "node src/seed.js",
+    "dev": "nodemon src/server.js",
+    "test": "jest"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -19,7 +19,8 @@
     "express-async-handler": "^1.2.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.1",
-    "morgan": "^1.10.1"
+    "morgan": "^1.10.1",
+    "zod": "^4.1.9"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

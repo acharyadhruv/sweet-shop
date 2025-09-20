@@ -22,5 +22,3 @@ const addSweet = async (req, res) => {
     });
   }
 };
-
-module.exports = { addSweet };
