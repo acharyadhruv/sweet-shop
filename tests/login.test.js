@@ -28,11 +28,17 @@ describe("login controller - missing fields", () => {
     });
   });
   test("should return 401 if user does not exist", async () => {
+  // Provide valid email & password to bypass missing fields
+  req.body = { email: "john@example.com", password: "pass123" };
+
+  // Mock User.findOne to return null → user not found
   User.findOne.mockResolvedValue(null);
+
   await login(req, res);
 
   expect(User.findOne).toHaveBeenCalledWith({ email: req.body.email });
   expect(res.status).toHaveBeenCalledWith(401);
   expect(res.json).toHaveBeenCalledWith({ error: "Invalid credentials" });
 });
+
 });
