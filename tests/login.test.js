@@ -40,5 +40,23 @@ describe("login controller - missing fields", () => {
   expect(res.status).toHaveBeenCalledWith(401);
   expect(res.json).toHaveBeenCalledWith({ error: "Invalid credentials" });
 });
+test("should return 401 if password does not match", async () => {
+  req.body = { email: "john@example.com", password: "wrongpass" };
+
+  // Mock User.findOne to return a user
+  const mockUser = { _id: "123", password: "hashed_password", role: "customer" };
+  User.findOne.mockResolvedValue(mockUser);
+
+  // Mock bcrypt.compare to return false → password mismatch
+  const bcrypt = require("bcryptjs");
+  bcrypt.compare.mockResolvedValue(false);
+
+  await login(req, res);
+
+  expect(bcrypt.compare).toHaveBeenCalledWith("wrongpass", "hashed_password");
+  expect(res.status).toHaveBeenCalledWith(401);
+  expect(res.json).toHaveBeenCalledWith({ error: "Invalid credentials" });
+});
+
 
 });
