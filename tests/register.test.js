@@ -1,13 +1,15 @@
 const { register } = require("../src/controllers/authController");
-const { userZodSchema } = require("../src/models/User");
+const { User, userZodSchema } = require("../src/models/User");
+const bcrypt = require("bcryptjs");
 
-// Mock Zod parse
+// Mock dependencies
+jest.mock("bcryptjs", () => ({ hash: jest.fn() }));
 jest.mock("../src/models/User", () => ({
+  User: { findOne: jest.fn(), create: jest.fn() },
   userZodSchema: { parse: jest.fn() },
-  User: { findOne: jest.fn(), create: jest.fn() }, // still minimal
 }));
 
-describe("register controller with Zod", () => {
+describe("register controller", () => {
   let req, res;
 
   beforeEach(() => {
@@ -16,14 +18,15 @@ describe("register controller with Zod", () => {
     jest.clearAllMocks();
   });
 
-  test("should parse input with Zod and return 201", async () => {
-    // ✅ Mock Zod parse to return input data
+  test("should return 400 if email already exists", async () => {
     userZodSchema.parse.mockReturnValue(req.body);
+
+    // ✅ Simulate email already in DB
+    User.findOne.mockResolvedValue({ email: "john@example.com" });
 
     await register(req, res);
 
-    expect(userZodSchema.parse).toHaveBeenCalledWith(req.body);
-    expect(res.status).toHaveBeenCalledWith(201);
-    expect(res.json).toHaveBeenCalledWith({ message: "User registered", user: req.body });
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: "Email already registered" });
   });
 });
